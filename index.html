@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Passphrase Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .container {
+            margin: 0 auto;
+            max-width: 500px;
+            padding: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .output {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Passphrase Generator</h1>
+        <label for="keyword">Keyword:</label>
+        <input type="text" id="keyword">
+        <br>
+        <button onclick="generatePassphrase()">Generate Passphrase</button>
+        <div class="output">
+            <pre id="passphrase"></pre>
+        </div>
+    </div>
+
+    <script>
+        function generateRandomKeyword(length) {
+            var alphabet = "abcdefghijklmnopqrstuvwxyz";
+            var keyword = '';
+            for (var i = 0; i < length; i++) {
+                keyword += alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+            }
+            return keyword;
+        }
+
+        function vigenereEncrypt(text, keyword) {
+            var encryptedText = '';
+            var keywordIndex = 0;
+            for (var i = 0; i < text.length; i++) {
+                var char = text.charAt(i);
+                if (char.match(/[a-z]/i)) {
+                    var charCode = char.toLowerCase().charCodeAt(0) - 97;
+                    var keywordCharCode = keyword.charAt(keywordIndex).toLowerCase().charCodeAt(0) - 97;
+                    var encryptedCharCode = (charCode + keywordCharCode) % 26;
+                    encryptedText += String.fromCharCode(encryptedCharCode + 97);
+                    keywordIndex = (keywordIndex + 1) % keyword.length;
+                } else {
+                    encryptedText += char;
+                }
+            }
+            return encryptedText;
+        }
+
+        function aesEncrypt(text, key) {
+            var cryptoKey = CryptoJS.enc.Utf8.parse(key);
+            var encrypted = CryptoJS.AES.encrypt(text, cryptoKey, {
+                mode: CryptoJS.mode.ECB,
+                padding: CryptoJS.pad.Pkcs7
+            });
+            return encrypted.toString();
+        }
+
+        function generatePassphrase() {
+            var keyword = document.getElementById("keyword").value.trim();
+            var wordList = ["apple", "banana", "carrot", "dog", "elephant", "fish"];
+            var aesKey = generateRandomKeyword(16);
+            var passphrase = '';
+
+            if (!keyword) {
+                keyword = generateRandomKeyword(wordList.length);
+            }
+
+            for (var i = 0; i < wordList.length; i++) {
+                var word = wordList[i];
+                var encryptedWord = vigenereEncrypt(word, keyword);
+                passphrase += encryptedWord + ' ';
+            }
+
+            var securePassphrase = aesEncrypt(passphrase.trim(), aesKey);
+
+            document.getElementById("passphrase").textContent = securePassphrase;
+        }
+    </script>
+</body>
+</html>
