@@ -1,27 +1,39 @@
-body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
+document.getElementById('generateButton').addEventListener('click', function() {
+  var numWords = parseInt(document.getElementById('num_words').value);
+  var separator = document.getElementById('separator').value;
+
+  var wordlist = [
+    'apple', 'banana', 'cherry', 'date', 'elderberry',
+    'fig', 'grape', 'honeydew', 'jackfruit', 'kiwi'
+  ];
+
+  var passphrase = generatePassphrase(wordlist, numWords, separator);
+  var password = generatePassword();
+  document.getElementById('passphrase').textContent = passphrase;
+  document.getElementById('passphraseContainer').style.display = 'block';
+  document.getElementById('password').textContent = password;
+  document.getElementById('generatedPassword').style.display = 'block';
+});
+
+function generatePassphrase(wordlist, numWords, separator) {
+  var passphrase = '';
+  for (var i = 0; i < numWords; i++) {
+    var randomIndex = Math.floor(Math.random() * wordlist.length);
+    passphrase += wordlist[randomIndex];
+    if (i < numWords - 1) {
+      passphrase += separator;
+    }
+  }
+  return passphrase;
 }
 
-h1 {
-  text-align: center;
-}
-
-label {
-  display: block;
-  margin-bottom: 5px;
-}
-
-input[type="number"],
-input[type="text"],
-button {
-  margin-bottom: 10px;
-}
-
-button {
-  padding: 5px 10px;
-}
-
-h2 {
-  margin-top: 20px;
+function generatePassword() {
+  var length = 10;
+  var charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]\:;?><,./-=';
+  var password = '';
+  for (var i = 0; i < length; i++) {
+    var randomIndex = Math.floor(Math.random() * charset.length);
+    password += charset[randomIndex];
+  }
+  return password;
 }
