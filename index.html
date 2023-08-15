@@ -1,55 +1,53 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Passphrase Generator</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js"></script>
-  </head>
-  <body>
-    <h1>Passphrase Generator</h1>
-    <div>
-      <label for="num_words">Number of Words:</label>
-      <input type="number" id="num_words" min="1" max="10" value="3">
-    </div>
-    <div>
-      <label for="separator">Separator:</label>
-      <input type="text" id="separator" value="-">
-    </div>
-    <button id="generateButton">Generate Passphrase</button>
-    <div id="passphraseContainer" style="display: none;">
-      <h2>Your Passphrase:</h2>
-      <p id="passphrase"></p>
-    </div>
-    <div id="generatedPassword" style="display: none;">
-      <h2>Generated Password:</h2>
-      <p id="password"></p>
-    </div>
-    <a mp-mode="dftl" href="https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=2c93808489d9a6da0189d9a97f760000" name="MP-payButton" class='blue-ar-l-rn-none'>Suscribirme</a>
-<script type="text/javascript">
-   (function() {
-      function $MPC_load() {
-         window.$MPC_loaded !== true && (function() {
-         var s = document.createElement("script");
-         s.type = "text/javascript";
-         s.async = true;
-         s.src = document.location.protocol + "//secure.mlstatic.com/mptools/render.js";
-         var x = document.getElementsByTagName('script')[0];
-         x.parentNode.insertBefore(s, x);
-         window.$MPC_loaded = true;
-      })();
-   }
-   window.$MPC_loaded !== true ? (window.attachEvent ? window.attachEvent('onload', $MPC_load) : window.addEventListener('load', $MPC_load, false)) : null;
-   })();
-  /*
-        // to receive event with message when closing modal from congrants back to site
-        function $MPC_message(event) {
-          // onclose modal ->CALLBACK FUNCTION
-         // !!!!!!!!FUNCTION_CALLBACK HERE Received message: {event.data} preapproval_id !!!!!!!!
-        }
-        window.$MPC_loaded !== true ? (window.addEventListener("message", $MPC_message)) : null; 
-        */
-</script>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser Audio Capture</title>
+</head>
+<body>
+    <button id="startButton">Start Recording</button>
+    <button id="stopButton" disabled>Stop Recording</button>
+    
+    <script>
+        let mediaRecorder;
+        let recordedChunks = [];
 
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
 
-  </body>
+        startButton.addEventListener('click', async () => {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+
+            mediaRecorder.ondataavailable = event => {
+                if (event.data.size > 0) {
+                    recordedChunks.push(event.data);
+                }
+            };
+
+            mediaRecorder.start();
+            startButton.disabled = true;
+            stopButton.disabled = false;
+        });
+
+        stopButton.addEventListener('click', () => {
+            if (mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                startButton.disabled = false;
+                stopButton.disabled = true;
+            }
+        });
+
+        mediaRecorder.addEventListener('stop', () => {
+            const blob = new Blob(recordedChunks, { type: 'audio/wav' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'recorded_audio.wav';
+            a.textContent = 'Download Audio';
+            document.body.appendChild(a);
+        });
+    </script>
+</body>
 </html>
